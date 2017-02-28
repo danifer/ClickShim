@@ -14,6 +14,7 @@ window.onclick = function (e) {
     data['type'] = name;
     data['id'] = e.srcElement.hasAttribute("id") ? e.srcElement.attributes.id.nodeValue : null;
     data['class'] = e.srcElement.hasAttribute("class") ? e.srcElement.attributes.class.nodeValue : null;
+    data['segment'] = e.srcElement.hasAttribute("segment") ? e.srcElement.getAttribute('segment') : null;
     data['href'] = window.location.href;
     data['protocol'] = window.location.protocol;
     data['host'] = window.location.host;
@@ -23,7 +24,7 @@ window.onclick = function (e) {
     data['timestamp'] = Date.now();
     data['input'] = input;
 
-    //console.log( json );
+    console.log( JSON.stringify(data) );
 
     logData( JSON.stringify(data) );
   }
@@ -31,7 +32,7 @@ window.onclick = function (e) {
 
 function logData(data) {
     
-  var url = "http://clickshim.virt/i.php";
+  var url = "http://endpoint.clickshim.virt/i.php";
   var request = new XMLHttpRequest();
   var async = true;
 
