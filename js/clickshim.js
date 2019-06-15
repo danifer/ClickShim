@@ -1,20 +1,32 @@
 var input = document.getElementById('linkshim').textContent;
-var allowed = new Array("a");
+var link = document.querySelectorAll('a,p');
+var pub_id = window.pub_id;
+var url = "http://e.clickshim.com/i.php";
+var request = new XMLHttpRequest();
 
-window.onclick = function (e) {
+function logData(data) {
+  var async = true;
+  var isSafari = /constructor/i.test(window.HTMLElement) || (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!window['safari'] || safari.pushNotification);
 
-  var name = e.target.localName;
-  var pub_id = window.pub_id;
+  if (isSafari) {
+    var async = false;
+  };
 
-  if (window.allowed.indexOf(name) != -1) {
+  request.open("POST", url, async);
+  request.setRequestHeader("Content-Type","application/json")
+  request.send(data);
 
+  return;
+}
+
+function registerClick(event) {
     var data = {};
-    data['text'] = e.srcElement.textContent;
-    data['target'] = e.srcElement.hasAttribute("href") ? e.srcElement.attributes.href.nodeValue : null;
-    data['type'] = name;
-    data['id'] = e.srcElement.hasAttribute("id") ? e.srcElement.attributes.id.nodeValue : null;
-    data['class'] = e.srcElement.hasAttribute("class") ? e.srcElement.attributes.class.nodeValue : null;
-    data['segment'] = e.srcElement.hasAttribute("segment") ? e.srcElement.getAttribute('segment') : null;
+    data['text'] = event.srcElement.textContent;
+    data['target'] = event.srcElement.hasAttribute("href") ? event.srcElement.attributes.href.nodeValue : null;
+    data['type'] = event.target.localName;
+    data['id'] = event.srcElement.hasAttribute("id") ? event.srcElement.attributes.id.nodeValue : null;
+    data['class'] = event.srcElement.hasAttribute("class") ? event.srcElement.attributes.class.nodeValue : null;
+    data['segment'] = event.srcElement.hasAttribute("segment") ? event.srcElement.getAttribute('segment') : null;
     data['href'] = window.location.href;
     data['protocol'] = window.location.protocol;
     data['host'] = window.location.host;
@@ -27,34 +39,25 @@ window.onclick = function (e) {
     console.log( JSON.stringify(data) );
 
     logData( JSON.stringify(data) );
-  }
+
+    return;
 }
 
-function logData(data) {
-    
-  var url = "http://endpoint.clickshim.virt/i.php";
-  var request = new XMLHttpRequest();
-  var async = true;
-
-  var isSafari = /constructor/i.test(window.HTMLElement) || (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!window['safari'] || safari.pushNotification);
-
-  if (isSafari) {
-
-    var async = false;
-  };
-
-  request.open("POST", url, async);
-  request.onreadystatechange = function(object) {
-
-    if(request.readyState === 3) {
-
+function init() {
+    for (var i = 0; i < link.length; i++) {
+        if (window.addEventListener) {
+            link[i].addEventListener('mousedown', registerClick, true);
+        } else if (window.attachEvent) { 
+            link[i].attachEvent('onmousedown', registerClick);
+        }
     }
-  };
 
-  request.onload = function () {};
-
-  request.ontimeout = function (e) {};
-  
-  request.setRequestHeader("Content-Type","application/json")
-  request.send(data);
+    return;
 }
+
+if (window.addEventListener) { //when document is loaded initiate init
+    document.addEventListener("DOMContentLoaded", init, false);
+} else if (window.attachEvent) {
+    document.attachEvent("onDOMContentLoaded", init);
+}
+
